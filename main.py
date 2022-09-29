@@ -18,21 +18,8 @@ def step_0():
     Calculation only
 """
 def step_1(unstructured_list):
-    # Variables
-    triangular_pairs_list = []
-    triangular_duplicates_list = []
-    pairs_list = []
-
-    # Get pair A
-    for pair_a in coin_list:
-        pair_a_split = pair_a.split('_')
-        a_base = pair_a_split[0]
-        a_quote = pair_a_split[1]
-
-        print(pair_a_split)
-
-    return triangular_pairs_list
-
+    structured_list = functions.structure_triangular_pairs(unstructured_list)
+    return []
 
 """ MAIN """
 if __name__ == '__main__':
