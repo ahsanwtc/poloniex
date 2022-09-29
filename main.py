@@ -5,11 +5,12 @@
     Exchange: Poloniex
     https://docs.poloniex.com/#introduction
 """
+import functions
 
-import requests
-import json
+# Extract list of coins and prices from Exchange
+response_json = functions.get_coin_tickers('https://poloniex.com/public?command=returnTicker')
 
-url = 'https://poloniex.com/public?command=returnTicker'
-req = requests.get(url)
-response_json = json.loads(req.text)
-print(response_json)
+# Loop through each object and find the tradeable pairs
+coin_list = functions.collect_tradeables(response_json)
+
+print(coin_list)
