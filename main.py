@@ -1,3 +1,5 @@
+import json
+
 import functions
 
 """
@@ -18,10 +20,15 @@ def step_0():
     Calculation only
 """
 def step_1(unstructured_list):
+    # structure the list of tradeable triangular arbitrage pairs
     structured_list = functions.structure_triangular_pairs(unstructured_list)
-    return []
+
+    # export list to json file
+    with open('data/structured-triangular-pairs.json', 'w') as fp:
+        json.dump(structured_list, fp)
+
 
 """ MAIN """
 if __name__ == '__main__':
     coin_list = step_0()
-    structured_pairs = step_1(coin_list)
+    step_1(coin_list)
