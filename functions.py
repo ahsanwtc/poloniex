@@ -84,3 +84,64 @@ def structure_triangular_pairs(coin_list):
                                     triangular_pairs_list.append(match_dict)
                                     triangular_duplicates_list.append(unique_item)
     return triangular_pairs_list
+
+# Structured prices
+def get_price_for_t_pair(t_pair, prices_json):
+    # Extract pair info
+    pair_a = t_pair['pair_a']
+    pair_b = t_pair['pair_b']
+    pair_c = t_pair['pair_c']
+
+    # Extract price information for the given pairs
+    pair_a_ask = float(prices_json[pair_a]['lowestAsk'])
+    pair_a_bid = float(prices_json[pair_a]['highestBid'])
+    pair_b_ask = float(prices_json[pair_b]['lowestAsk'])
+    pair_b_bid = float(prices_json[pair_b]['highestBid'])
+    pair_c_ask = float(prices_json[pair_c]['lowestAsk'])
+    pair_c_bid = float(prices_json[pair_c]['highestBid'])
+
+    # Return dictionary
+    return {
+        'pair_a_ask': pair_a_ask,
+        'pair_a_bid': pair_a_bid,
+        'pair_b_ask': pair_b_ask,
+        'pair_b_bid': pair_b_bid,
+        'pair_c_ask': pair_c_ask,
+        'pair_c_bid': pair_c_bid
+    }
+
+# Calculate surface arbitrage opportunity
+def cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary):
+    # Set variables
+    starting_amount = 1
+    min_surface_rate = 0
+    surface_dict = {}
+    contract_2 = ''
+    contract_3 = ''
+    direction_trade_1 = ''
+    direction_trade_2 = ''
+    direction_trade_3 = ''
+    acquired_coin_t2 = 0
+    acquired_coin_t3 = 0
+    calculated = 0
+
+    # Extract pair variables
+    a_base = t_pair['a_base']
+    a_quote = t_pair['a_quote']
+    b_base = t_pair['b_base']
+    b_quote = t_pair['b_quote']
+    c_base = t_pair['c_base']
+    c_quote = t_pair['c_quote']
+    pair_a = t_pair['pair_a']
+    pair_b = t_pair['pair_b']
+    pair_c = t_pair['pair_c']
+
+    # Extract price information
+    a_ask = prices_dictionary['pair_a_ask']
+    a_bid = prices_dictionary['pair_a_bid']
+    b_ask = prices_dictionary['pair_b_ask']
+    b_bid = prices_dictionary['pair_b_bid']
+    c_ask = prices_dictionary['pair_c_ask']
+    c_bid = prices_dictionary['pair_c_bid']
+
+    
