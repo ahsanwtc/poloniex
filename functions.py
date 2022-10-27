@@ -116,11 +116,13 @@ def cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary):
     starting_amount = 1
     min_surface_rate = 0
     surface_dict = {}
+    contract_1 = ''
     contract_2 = ''
     contract_3 = ''
     direction_trade_1 = ''
     direction_trade_2 = ''
     direction_trade_3 = ''
+    acquired_coin_t1 = 0
     acquired_coin_t2 = 0
     acquired_coin_t3 = 0
     calculated = 0
@@ -144,4 +146,51 @@ def cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary):
     c_ask = prices_dictionary['pair_c_ask']
     c_bid = prices_dictionary['pair_c_bid']
 
-    
+    # Set directions and loop through
+    direction_list = ['forward', 'reverse']
+    for direction in direction_list:
+        # Set additional variables for swap information
+        swap_1 = 0
+        swap_2 = 0
+        swap_3 = 0
+        swap_1_rate = 0
+        swap_2_rate = 0
+        swap_3_rate = 0
+
+        """
+            Poloniex Rules !!
+            If we are swapping the coin on the left (Base) to the right (Quote) then * (1 / Ask)
+            If we are swapping the coin on the right (Quote) to the left (Base) then * Bid
+        """
+
+        # Assume starting with a_base and swapping for q_quote
+        if direction == 'forward':
+            swap_1 = a_base
+            swap_2 = a_quote
+            swap_1_rate = 1 / a_ask
+            direction_trade_1 = 'base_to_quote'
+
+        if direction == 'reverse':
+            swap_1 = a_quote
+            swap_2 = a_base
+            swap_1_rate = a_bid
+            direction_trade_1 = 'quote_to_base'
+
+        # Place first trade
+        acquired_coin_t1 = starting_amount * swap_1_rate
+
+        # First leg of the trade
+        contract_1 = pair_a
+
+        """
+            USDT_BTC | BTC_ETH | USDT_ETH
+            USDT_BTC | ETH_BTC | USDT_ETH
+            USDT_BTC | ETH_BTC | ETH_USDT 
+            ...
+            ...
+            etc
+            Moving to next pair is dictated by which coin is acquired. It could be pair_b or pair_c depending which
+            pair has the acquired token
+        """
+
+
