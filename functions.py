@@ -125,7 +125,7 @@ def cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary):
     acquired_coin_t1 = 0
     acquired_coin_t2 = 0
     acquired_coin_t3 = 0
-    calculated = 0
+    calculated = False # calculated will be True if trades are finished and need to break out of current iteration
 
     # Extract pair variables
     a_base = t_pair['a_base']
@@ -193,4 +193,130 @@ def cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary):
             pair has the acquired token
         """
 
+        """ FORWARD """
+        # SCENARIO I: Check if a_quote(acquired_coin) matches b_quote e.g. USDT_BTC | ETH_BTC
+        if direction == 'forward':
+            if a_quote == b_quote and calculated is False:
+                swap_2_rate = b_bid
+                acquired_coin_t2 = acquired_coin_t1 * swap_2_rate
+                direction_trade_2 = 'quote_to_base'
+                # Second leg of the trade
+                contract_2 = pair_b
 
+                # If b_base (acquired_coin) matches c_base e.g. USDT_BTC | ETH_BTC | ETH_USDT
+                if b_base == c_base:
+                    swap_3 = c_base
+                    swap_3_rate = 1 / c_ask
+                    direction_trade_3 = 'base_to_quote'
+                    # Third leg of the trade
+                    contract_3 = pair_c
+
+                # If b_base (acquired_coin) matches c_quote e.g. USDT_BTC | BTC_ETH | USDT_ETH
+                if b_base == c_quote:
+                    swap_3 = c_quote
+                    swap_3_rate = c_bid
+                    direction_trade_3 = 'quote_to_base'
+                    # Third leg of the trade
+                    contract_3 = pair_c
+
+                acquired_coin_t3 = acquired_coin_t2 * swap_3_rate
+                # Trades finished for a group
+                calculated = True
+
+        # SCENARIO II: Check if a_quote(acquired_coin) matches b_base e.g. USDT_BTC | BTC_ETH
+        if direction == 'forward':
+            if a_quote == b_base and calculated is False:
+                swap_2_rate = 1 / b_ask
+                acquired_coin_t2 = acquired_coin_t1 * swap_2_rate
+                direction_trade_2 = 'base_to_quote'
+                # Second leg of the trade
+                contract_2 = pair_b
+
+                # If b_quote (acquired_coin) matches c_base e.g. USDT_BTC | BTC_ETH | ETH_USDT
+                if b_quote == c_base:
+                    swap_3 = c_base
+                    swap_3_rate = 1 / c_ask
+                    direction_trade_3 = 'base_to_quote'
+                    # Third leg of the trade
+                    contract_3 = pair_c
+
+                # If b_quote (acquired_coin) matches c_quote e.g. USDT_BTC | BTC_ETH | USDT_ETH
+                if b_quote == c_quote:
+                    swap_3 = c_quote
+                    swap_3_rate = c_bid
+                    direction_trade_3 = 'quote_to_base'
+                    # Third leg of the trade
+                    contract_3 = pair_c
+
+                acquired_coin_t3 = acquired_coin_t2 * swap_3_rate
+                # Trades finished for a group
+                calculated = True
+
+        # SCENARIO III: Check if a_quote(acquired_coin) matches c_quote
+        if direction == 'forward':
+            if a_quote == c_quote and calculated is False:
+                swap_2_rate = c_bid
+                acquired_coin_t2 = acquired_coin_t1 * swap_2_rate
+                direction_trade_2 = 'quote_to_base'
+                # Second leg of the trade
+                contract_2 = pair_c
+
+                # If c_base (acquired_coin) matches b_base
+                if c_base == b_base:
+                    swap_3 = b_base
+                    swap_3_rate = 1 / b_ask
+                    direction_trade_3 = 'base_to_quote'
+                    # Third leg of the trade
+                    contract_3 = pair_b
+
+                # If c_base (acquired_coin) matches b_quote
+                if c_base == b_quote:
+                    swap_3 = b_quote
+                    swap_3_rate = b_bid
+                    direction_trade_3 = 'quote_to_base'
+                    # Third leg of the trade
+                    contract_3 = pair_b
+
+                acquired_coin_t3 = acquired_coin_t2 * swap_3_rate
+                # Trades finished for a group
+                calculated = True
+
+        # SCENARIO IV: Check if a_quote(acquired_coin) matches c_base
+        if direction == 'forward':
+            if a_quote == c_base and calculated is False:
+                swap_2_rate = 1 / c_ask
+                acquired_coin_t2 = acquired_coin_t1 * swap_2_rate
+                direction_trade_2 = 'base_to_quote'
+                # Second leg of the trade
+                contract_2 = pair_c
+
+                # If c_quote (acquired_coin) matches b_base
+                if c_quote == b_base:
+                    swap_3 = b_base
+                    swap_3_rate = 1 / b_ask
+                    direction_trade_3 = 'base_to_quote'
+                    # Third leg of the trade
+                    contract_3 = pair_b
+
+                # If c_quote (acquired_coin) matches b_quote
+                if c_quote == b_quote:
+                    swap_3 = b_quote
+                    swap_3_rate = b_bid
+                    direction_trade_3 = 'quote_to_base'
+                    # Third leg of the trade
+                    contract_3 = pair_b
+
+                acquired_coin_t3 = acquired_coin_t2 * swap_3_rate
+                # Trades finished for a group
+                calculated = True
+
+            # if acquired_coin_t3 > starting_amount:
+            #     print({
+            #         'askA': a_ask,
+            #         'askB': b_ask,
+            #         'askC': c_ask,
+            #         'bidA': a_bid,
+            #         'bidB': b_bid,
+            #         'bidC': c_bid
+            #     })
+            #     print(direction, pair_a, pair_b, pair_c, starting_amount, acquired_coin_t3)
