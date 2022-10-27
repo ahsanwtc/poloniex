@@ -115,7 +115,7 @@ def cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary):
     # Set variables
     starting_amount = 1
     min_surface_rate = 0
-    surface_dict = {}
+    surface_dictionary = {}
     contract_1 = ''
     contract_2 = ''
     contract_3 = ''
@@ -427,13 +427,45 @@ def cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary):
                 # Trades finished for a group
                 calculated = True
 
-        if direction == 'forward' and acquired_coin_t3 > starting_amount:
-            print({
-                'askA': a_ask,
-                'askB': b_ask,
-                'askC': c_ask,
-                'bidA': a_bid,
-                'bidB': b_bid,
-                'bidC': c_bid
-            })
-            print(direction, pair_a, pair_b, pair_c, starting_amount, acquired_coin_t3)
+        """ PROFIT LOSS OUTPUT """
+        # Profile and Loss calculation
+        profit_loss = acquired_coin_t3 - starting_amount
+        profit_loss_percent = (profit_loss / starting_amount) * 100 if profit_loss != 0 else 0
+
+        # Trade descriptions
+        trade_description_1 = f"Start with {swap_1} of {starting_amount}. Swap at {swap_1_rate} for {swap_2} " \
+                              f"acquiring {acquired_coin_t1}."
+        trade_description_2 = f"Swap {acquired_coin_t1} of {swap_2} at {swap_2_rate} for {swap_3} acquiring " \
+                              f"{acquired_coin_t2}."
+        trade_description_3 = f"Swap {acquired_coin_t2} of {swap_3} at {swap_3_rate} for {swap_1} acquiring " \
+                              f"{acquired_coin_t3}."
+
+        # Output results
+        if profit_loss_percent > min_surface_rate:
+            surface_dictionary = {
+                'swap_1': swap_1,
+                'swap_2': swap_2,
+                'swap_3': swap_3,
+                'contract_1': contract_1,
+                'contract_2': contract_2,
+                'contract_3': contract_3,
+                'direction_trade_1': direction_trade_1,
+                'direction_trade_2': direction_trade_2,
+                'direction_trade_3': direction_trade_3,
+                'starting_amount': starting_amount,
+                'acquired_coin_t1': acquired_coin_t1,
+                'acquired_coin_t2': acquired_coin_t2,
+                'acquired_coin_t3': acquired_coin_t3,
+                'swap_1_rate': swap_1_rate,
+                'swap_2_rate': swap_2_rate,
+                'swap_3_rate': swap_3_rate,
+                'profit_loss': profit_loss,
+                'profit_loss_percent': profit_loss_percent,
+                'direction': direction,
+                'trade_description_1': trade_description_1,
+                'trade_description_2': trade_description_2,
+                'trade_description_3': trade_description_3
+            }
+            return surface_dictionary
+
+    return surface_dictionary

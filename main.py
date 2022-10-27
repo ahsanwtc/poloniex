@@ -47,6 +47,8 @@ def step_2():
     for t_pair in structured_pairs:
         prices_dictionary = functions.get_price_for_t_pair(t_pair, prices_json)
         surface_arbitrage = functions.cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary)
+        if len(surface_arbitrage) > 0:
+            print(surface_arbitrage)
 
 
 """ MAIN """
