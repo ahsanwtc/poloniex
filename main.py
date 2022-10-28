@@ -56,4 +56,5 @@ if __name__ == '__main__':
     # coin_list = step_0()
     # step_1(coin_list)
     # step_2()
-    functions.get_depth_from_orderbook()
+    real_rate_arbitrate = functions.get_depth_from_orderbook()
+    print(real_rate_arbitrate)

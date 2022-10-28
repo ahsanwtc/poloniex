@@ -1,6 +1,6 @@
 import requests
 import json
-
+import time
 
 # Get list of coins and prices from Exchange
 def get_coin_tickers(url):
@@ -496,15 +496,53 @@ def reformatted_orderbook(prices, direction):
 
     return price_list_main
 
-# Get the depth from the order book
-def get_depth_from_orderbook():
+# Get acquired coin also known as Depth calculation
+def calculate_acquired_coin(amount_in, orderbook):
     """
         CHALLENGES
-        Full amount of available amount in can be eaten on the first level (level 0)
+        Full amount of starting amount in can be eaten on the first level (level 0)
         Some amount in can be eaten up by multiple levels
         Some coins may not have enough liquidity
     """
 
+    # Initialize variables
+    trading_balance = amount_in
+    quantity_bought = 0
+    acquired_coin = 0
+    counts = 0
+    amount_bought = 0
+
+    for level in orderbook:
+        # Extract the level price and quantity
+        level_price = level[0]
+        level_available_quantity = level[1]
+
+        # Amount in is <= first level total amount
+        if trading_balance <= level_available_quantity:
+            quantity_bought = trading_balance
+            trading_balance = 0
+            amount_bought = quantity_bought * level_price
+
+        # Amount in is > given level total amount
+        if trading_balance > level_available_quantity:
+            quantity_bought = level_available_quantity
+            trading_balance = trading_balance - quantity_bought
+            amount_bought = quantity_bought * level_price
+
+        # Accumulate acquired coin
+        acquired_coin = acquired_coin + amount_bought
+
+        # Exit trade
+        if trading_balance == 0:
+            return acquired_coin
+
+        # Exit if not enough order book levels
+        counts += 1
+        if counts == len(orderbook):
+            return 0
+
+# Get the depth from the order book
+def get_depth_from_orderbook():
     # Extract initial variables
     swap_1 = 'USDT'
     starting_amount = 10
@@ -529,4 +567,36 @@ def get_depth_from_orderbook():
     url_1 = f'https://poloniex.com/public?command=returnOrderBook&currencyPair={contract_1}&depth=20'
     depth_1_prices = get_coin_tickers(url_1)
     depth_1_reformatted_prices = reformatted_orderbook(depth_1_prices, direction_trade_1)
-    
+    time.sleep(0.3)
+
+    url_2 = f'https://poloniex.com/public?command=returnOrderBook&currencyPair={contract_2}&depth=20'
+    depth_2_prices = get_coin_tickers(url_2)
+    depth_2_reformatted_prices = reformatted_orderbook(depth_2_prices, direction_trade_2)
+    time.sleep(0.3)
+
+    url_3 = f'https://poloniex.com/public?command=returnOrderBook&currencyPair={contract_3}&depth=20'
+    depth_3_prices = get_coin_tickers(url_3)
+    depth_3_reformatted_prices = reformatted_orderbook(depth_3_prices, direction_trade_3)
+
+    # Get acquired coins
+    acquired_coin_t1 = calculate_acquired_coin(starting_amount, depth_1_reformatted_prices)
+    acquired_coin_t2 = calculate_acquired_coin(acquired_coin_t1, depth_2_reformatted_prices)
+    acquired_coin_t3 = calculate_acquired_coin(acquired_coin_t2, depth_3_reformatted_prices)
+
+    # Calculate Profit Loss also known as Real Rate
+    profit_loss = acquired_coin_t3 - starting_amount
+    real_rate_percent = (profit_loss / starting_amount) * 100 if profit_loss != 0 else 0
+
+    if real_rate_percent > -50:
+        return {
+            'profit_loss': profit_loss,
+            'real_rate_percent': real_rate_percent,
+            'contract_1': contract_1,
+            'contract_2': contract_2,
+            'contract_3': contract_3,
+            'direction_trade_1': direction_trade_1,
+            'direction_trade_2': direction_trade_2,
+            'direction_trade_3': direction_trade_3,
+        }
+    else:
+        return {}
