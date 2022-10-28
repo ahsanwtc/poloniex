@@ -55,4 +55,5 @@ def step_2():
 if __name__ == '__main__':
     # coin_list = step_0()
     # step_1(coin_list)
-    step_2()
+    # step_2()
+    functions.get_depth_from_orderbook()

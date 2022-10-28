@@ -469,3 +469,64 @@ def cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary):
             return surface_dictionary
 
     return surface_dictionary
+
+# Reformat order book for depth calculation
+def reformatted_orderbook(prices, direction):
+    price_list_main = []
+    if direction == 'base_to_quote':
+        for price_pair in prices['asks']:
+            # price_pair: [50857.729, 0.32] => price = price_pair[0], quantity = price_pair[1]
+            ask_price = float(price_pair[0])
+            adjusted_price = 1 / ask_price if ask_price != 0 else 0
+
+            # adjusted_quantity meaning the total value of the asset in base currency e.g. for USDT_BTC, multiplying
+            # the quantity with the price will give the total value of BTC in USDT
+            adjusted_quantity = ask_price * float(price_pair[1])
+            price_list_main.append([adjusted_price, adjusted_quantity])
+
+    if direction == 'quote_to_base':
+        for price_pair in prices['bids']:
+            # price_pair: [20177.63, 0.844776] => price = price_pair[0], quantity = price_pair[1]
+            bid_price = float(price_pair[0])
+            adjusted_price = bid_price if bid_price != 0 else 0
+
+            # TODO COMMENTS
+            adjusted_quantity = float(price_pair[1])
+            price_list_main.append([adjusted_price, adjusted_quantity])
+
+    return price_list_main
+
+# Get the depth from the order book
+def get_depth_from_orderbook():
+    """
+        CHALLENGES
+        Full amount of available amount in can be eaten on the first level (level 0)
+        Some amount in can be eaten up by multiple levels
+        Some coins may not have enough liquidity
+    """
+
+    # Extract initial variables
+    swap_1 = 'USDT'
+    starting_amount = 10
+
+    # starting_amount_dictionary will have the starting amount of tokens matching the swap_1, so let say if swap_1
+    # is BTC, we don't want to start with 100 BTC, so get a more realistic value from the dictionary
+    starting_amount_dictionary = {'USDT': 100, 'USDC': 100, 'BTC': 0.05, 'ETH': 0.1}
+    if swap_1 in starting_amount_dictionary:
+        starting_amount = starting_amount_dictionary[swap_1]
+
+    # Define pairs
+    contract_1 = 'USDT_BTC'
+    contract_2 = 'BTC_INJ'
+    contract_3 = 'USDT_INJ'
+
+    # Define direction for the trades
+    direction_trade_1 = 'base_to_quote'
+    direction_trade_2 = 'base_to_quote'
+    direction_trade_3 = 'quote_to_base'
+
+    # Get order book for the first trade assessment
+    url_1 = f'https://poloniex.com/public?command=returnOrderBook&currencyPair={contract_1}&depth=20'
+    depth_1_prices = get_coin_tickers(url_1)
+    depth_1_reformatted_prices = reformatted_orderbook(depth_1_prices, direction_trade_1)
+    
