@@ -1,5 +1,6 @@
 import json
 import functions
+import time
 
 # Set variables
 coin_price_url = 'https://poloniex.com/public?command=returnTicker'
@@ -45,16 +46,17 @@ def step_2():
 
     # Loop through and get structured price information
     for t_pair in structured_pairs:
+        time.sleep(0.3)
         prices_dictionary = functions.get_price_for_t_pair(t_pair, prices_json)
         surface_arbitrage = functions.cal_triangular_arbitrage_surface_rate(t_pair, prices_dictionary)
         if len(surface_arbitrage) > 0:
-            print(surface_arbitrage)
+            real_rate_arbitrage = functions.get_depth_from_orderbook(surface_arbitrage)
+            print(real_rate_arbitrage)
+            time.sleep(1)
 
 
 """ MAIN """
 if __name__ == '__main__':
     # coin_list = step_0()
     # step_1(coin_list)
-    # step_2()
-    real_rate_arbitrate = functions.get_depth_from_orderbook()
-    print(real_rate_arbitrate)
+    step_2()
